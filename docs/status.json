@@ -1,124 +1,188 @@
 {
   "accounts": [
     {
-      "id": "acc-1",
-      "name": "Taric (Tanque)",
-      "level": 11,
-      "vocation": "taric",
+      "currentArea": "arena",
+      "durationSec": 963,
+      "expPerHour": 908576.626399231,
+      "extra": {
+        "bindIP": "10.0.0.191",
+        "party": [
+          "lanonimo (líder)",
+          "maumau222",
+          "lLrN",
+          "lanonimol"
+        ],
+        "partyBonusXp": 1.45,
+        "proxy": ""
+      },
+      "gold": 38251,
       "hp": 817,
-      "maxHp": 817,
+      "id": "acc-1",
+      "kills": 950,
+      "level": 12,
+      "logs": [
+        "[17:09:45] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 33139 | Kills: 840)",
+        "[17:10:00] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 33882 | Kills: 855)",
+        "[17:10:04] ⚔️ 860 abates — caçando em Runeterra (nível 12).",
+        "[17:10:15] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 34527 | Kills: 869)",
+        "[17:10:27] ⚔️ 880 abates — caçando em Runeterra (nível 12).",
+        "[17:10:30] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 35108 | Kills: 882)",
+        "[17:10:45] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 35628 | Kills: 893)",
+        "[17:10:55] ⚔️ 900 abates — caçando em Runeterra (nível 12).",
+        "[17:11:00] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 36092 | Kills: 903)",
+        "[17:11:15] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 36622 | Kills: 914)",
+        "[17:11:21] ⚔️ 920 abates — caçando em Runeterra (nível 12).",
+        "[17:11:30] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 37130 | Kills: 925)",
+        "[17:11:45] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 37656 | Kills: 937)",
+        "[17:11:47] ⚔️ 940 abates — caçando em Runeterra (nível 12).",
+        "[17:12:00] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 38139 | Kills: 948)"
+      ],
       "mana": 435,
+      "maxHp": 817,
       "maxMana": 435,
-      "gold": 20857,
-      "kills": 562,
-      "expPerHour": 826948,
+      "name": "Campeão #1",
       "status": "hunting",
-      "currentArea": "arena",
-      "durationSec": 488,
-      "logs": [
-        "⚔️ 500 abates — caçando em Runeterra (nível 10).",
-        "💾 Save confirmado com sucesso (Nv. 10 | Ouro: 19047 | Kills: 522)",
-        "💾 Save confirmado com sucesso (Nv. 11 | Ouro: 19582 | Kills: 534)",
-        "✨ Pontos de atributos distribuídos para classe taric!",
-        "⚡ Habilidades elevadas de nível com limites válidos!",
-        "⚔️ 560 abates — caçando em Runeterra (nível 11)."
-      ],
-      "updatedAt": 1792256647790,
-      "extra": {
-        "party": ["Taric (Líder)", "Yasuo", "Lux", "Ezreal"],
-        "partyBonusXp": 1.45
-      }
+      "updatedAt": 1792257123190,
+      "vocation": "taric"
     },
     {
-      "id": "acc-2",
-      "name": "Ezreal (Atirador)",
-      "level": 10,
-      "vocation": "ezreal",
+      "currentArea": "arena",
+      "durationSec": 963,
+      "expPerHour": 882549.5319736273,
+      "extra": {
+        "bindIP": "10.0.0.49",
+        "party": [
+          "lanonimo (líder)",
+          "maumau222",
+          "lLrN",
+          "lanonimol"
+        ],
+        "partyBonusXp": 1.45,
+        "proxy": ""
+      },
+      "gold": 33691,
       "hp": 600,
-      "maxHp": 600,
+      "id": "acc-2",
+      "kills": 814,
+      "level": 12,
+      "logs": [
+        "[17:10:15] 💾 Save confirmado com sucesso (Nv. 11 | Ouro: 29832 | Kills: 726)",
+        "[17:10:27] ⚔️ 740 abates — caçando em Runeterra (nível 11).",
+        "[17:10:30] 💾 Save confirmado com sucesso (Nv. 11 | Ouro: 30461 | Kills: 740)",
+        "[17:10:45] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 31078 | Kills: 754)",
+        "[17:10:49] ⚔️ 760 abates — caçando em Runeterra (nível 12).",
+        "[17:11:00] ✨ Pontos de atributos distribuídos para classe ezreal!",
+        "[17:11:00] ⚡ Habilidades elevadas de nível com limites válidos!",
+        "[17:11:00] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 31617 | Kills: 766)",
+        "[17:11:01] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 31617 | Kills: 766)",
+        "[17:11:15] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 32159 | Kills: 779)",
+        "[17:11:15] ⚔️ 780 abates — caçando em Runeterra (nível 12).",
+        "[17:11:30] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 32641 | Kills: 790)",
+        "[17:11:44] ⚔️ 800 abates — caçando em Runeterra (nível 12).",
+        "[17:11:45] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 33125 | Kills: 802)",
+        "[17:12:00] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 33630 | Kills: 813)"
+      ],
       "mana": 375,
+      "maxHp": 600,
       "maxMana": 375,
-      "gold": 17149,
-      "kills": 429,
-      "expPerHour": 792310,
+      "name": "Campeão #2",
       "status": "hunting",
-      "currentArea": "arena",
-      "durationSec": 488,
-      "logs": [
-        "⚔️ 380 abates — caçando em Runeterra (nível 10).",
-        "💾 Save confirmado com sucesso (Nv. 10 | Ouro: 15414 | Kills: 389)",
-        "⚔️ 400 abates — caçando em Runeterra (nível 10).",
-        "💾 Save confirmado com sucesso (Nv. 10 | Ouro: 15914 | Kills: 400)",
-        "⚔️ 420 abates — caçando em Runeterra (nível 10).",
-        "💾 Save confirmado com sucesso (Nv. 10 | Ouro: 16891 | Kills: 423)"
-      ],
-      "updatedAt": 1792256647816,
-      "extra": {
-        "party": ["Taric (Líder)", "Yasuo", "Lux", "Ezreal"],
-        "partyBonusXp": 1.45
-      }
+      "updatedAt": 1792257123216,
+      "vocation": "ezreal"
     },
     {
-      "id": "acc-3",
-      "name": "Lux (Mago)",
-      "level": 11,
-      "vocation": "lux",
+      "currentArea": "arena",
+      "durationSec": 963,
+      "expPerHour": 922204.3327301962,
+      "extra": {
+        "bindIP": "10.0.0.217",
+        "party": [
+          "lanonimo (líder)",
+          "maumau222",
+          "lLrN",
+          "lanonimol"
+        ],
+        "partyBonusXp": 1.45,
+        "proxy": ""
+      },
+      "gold": 37596,
       "hp": 580,
-      "maxHp": 580,
-      "mana": 440,
-      "maxMana": 440,
-      "gold": 19636,
-      "kills": 527,
-      "expPerHour": 835136,
-      "status": "hunting",
-      "currentArea": "arena",
-      "durationSec": 488,
+      "id": "acc-3",
+      "kills": 929,
+      "level": 12,
       "logs": [
-        "⚔️ 480 abates — caçando em Runeterra (nível 10).",
-        "💾 Save confirmado com sucesso (Nv. 11 | Ouro: 18320 | Kills: 496)",
-        "✨ Pontos de atributos distribuídos para classe lux!",
-        "⚡ Habilidades elevadas de nível com limites válidos!",
-        "⚔️ 500 abates — caçando em Runeterra (nível 11).",
-        "💾 Save confirmado com sucesso (Nv. 11 | Ouro: 19243 | Kills: 518)"
+        "[17:09:52] ⚔️ 820 abates — caçando em Runeterra (nível 12).",
+        "[17:10:00] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 32783 | Kills: 827)",
+        "[17:10:14] ⚔️ 840 abates — caçando em Runeterra (nível 12).",
+        "[17:10:15] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 33533 | Kills: 842)",
+        "[17:10:30] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 34137 | Kills: 855)",
+        "[17:10:36] ⚔️ 860 abates — caçando em Runeterra (nível 12).",
+        "[17:10:45] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 34638 | Kills: 866)",
+        "[17:11:00] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 35214 | Kills: 878)",
+        "[17:11:04] ⚔️ 880 abates — caçando em Runeterra (nível 12).",
+        "[17:11:15] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 35854 | Kills: 891)",
+        "[17:11:26] ⚔️ 900 abates — caçando em Runeterra (nível 12).",
+        "[17:11:30] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 36501 | Kills: 904)",
+        "[17:11:45] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 36965 | Kills: 914)",
+        "[17:11:53] ⚔️ 920 abates — caçando em Runeterra (nível 12).",
+        "[17:12:00] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 37445 | Kills: 925)"
       ],
-      "updatedAt": 1792256647836,
-      "extra": {
-        "party": ["Taric (Líder)", "Yasuo", "Lux", "Ezreal"],
-        "partyBonusXp": 1.45
-      }
+      "mana": 440,
+      "maxHp": 580,
+      "maxMana": 440,
+      "name": "Campeão #3",
+      "status": "hunting",
+      "updatedAt": 1792257123136,
+      "vocation": "lux"
     },
     {
-      "id": "acc-4",
-      "name": "Yasuo (Lutador)",
-      "level": 11,
-      "vocation": "yasuo",
-      "hp": 590,
-      "maxHp": 590,
-      "mana": 31,
-      "maxMana": 31,
-      "gold": 19828,
-      "kills": 523,
-      "expPerHour": 841515,
-      "status": "hunting",
       "currentArea": "arena",
-      "durationSec": 488,
-      "logs": [
-        "⚔️ 480 abates — caçando em Runeterra (nível 10).",
-        "💾 Save confirmado com sucesso (Nv. 10 | Ouro: 18517 | Kills: 493)",
-        "⚔️ 500 abates — caçando em Runeterra (nível 11).",
-        "✨ Pontos de atributos distribuídos para classe yasuo!",
-        "⚡ Habilidades elevadas de nível com limites válidos!",
-        "⚔️ 520 abates — caçando em Runeterra (nível 11)."
-      ],
-      "updatedAt": 1792256647827,
+      "durationSec": 963,
+      "expPerHour": 910623.290206073,
       "extra": {
-        "party": ["Taric (Líder)", "Yasuo", "Lux", "Ezreal"],
-        "partyBonusXp": 1.45
-      }
+        "bindIP": "10.0.0.79",
+        "party": [
+          "lanonimo (líder)",
+          "maumau222",
+          "lLrN",
+          "lanonimol"
+        ],
+        "partyBonusXp": 1.45,
+        "proxy": ""
+      },
+      "gold": 36967,
+      "hp": 590,
+      "id": "acc-4",
+      "kills": 908,
+      "level": 12,
+      "logs": [
+        "[17:09:53] ⚔️ 800 abates — caçando em Runeterra (nível 12).",
+        "[17:10:00] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 32217 | Kills: 804)",
+        "[17:10:17] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 32902 | Kills: 819)",
+        "[17:10:17] ⚔️ 820 abates — caçando em Runeterra (nível 12).",
+        "[17:10:30] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 33445 | Kills: 832)",
+        "[17:10:39] ⚔️ 840 abates — caçando em Runeterra (nível 12).",
+        "[17:10:45] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 34055 | Kills: 846)",
+        "[17:10:58] ⚔️ 860 abates — caçando em Runeterra (nível 12).",
+        "[17:11:00] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 34730 | Kills: 860)",
+        "[17:11:15] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 35188 | Kills: 870)",
+        "[17:11:24] ⚔️ 880 abates — caçando em Runeterra (nível 12).",
+        "[17:11:30] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 35807 | Kills: 882)",
+        "[17:11:45] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 36300 | Kills: 894)",
+        "[17:11:50] ⚔️ 900 abates — caçando em Runeterra (nível 12).",
+        "[17:12:00] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 36855 | Kills: 906)"
+      ],
+      "mana": 31,
+      "maxHp": 590,
+      "maxMana": 31,
+      "name": "Campeão #4",
+      "status": "hunting",
+      "updatedAt": 1792257123226,
+      "vocation": "yasuo"
     }
   ],
-  "goroutines": 30,
-  "ramAllocMB": 2.6,
-  "ramSysMB": 13.1,
-  "uptime": "8m8s"
+  "goroutines": 31,
+  "ramAllocMB": 2.2386703491210938,
+  "ramSysMB": 13.099861145019531,
+  "uptime": "16m4s"
 }
