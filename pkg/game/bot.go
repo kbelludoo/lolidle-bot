@@ -48,6 +48,7 @@ type Bot struct {
 
 	hunt      *hunter // simulação de caça em Runeterra (abates de monstros)
 	expEarned float64 // XP acumulada desde o início (para o EXP/h)
+	topLevel  int     // nível mais alto do servidor (/api/ranking?tipo=nivel)
 
 	logMu sync.Mutex
 	logs  []string
@@ -179,8 +180,23 @@ func (b *Bot) Init(ctx context.Context) error {
 		netInfo = "Proxy " + b.config.Proxy
 	}
 
-	b.addLog(fmt.Sprintf("✔ Conectado! Personagem: %s (%s, Nv. %d) | Rede: %s | Ouro: %d | Kills: %d | Área: %s",
-		sess.Nome, sess.Campeao, sess.Estado.Nivel, netInfo, int64(sess.Estado.Ouro), sess.Estado.Totais.Abates, b.status.CurrentArea))
+	b.updateTopLevel()
+	maxLvl := b.maxLevel()
+	topLvl := b.getTopLevel()
+	stealthLvl := b.config.Settings.StealthLevel
+	if stealthLvl <= 0 {
+		stealthLvl = 30
+	}
+
+	b.addLog(fmt.Sprintf("✔ Conectado! Personagem: %s (%s, Nv. %d/Teto %d [Top #1 Lv. %d]) | Rede: %s | Ouro: %d | Kills: %d | Área: %s",
+		sess.Nome, sess.Campeao, sess.Estado.Nivel, maxLvl, topLvl, netInfo, int64(sess.Estado.Ouro), sess.Estado.Totais.Abates, b.status.CurrentArea))
+
+	if sess.Estado.Nivel >= maxLvl {
+		b.addLog(fmt.Sprintf("🛡️ Personagem no nível %d (teto dinâmico: 5 abaixo do top %d). XP congelado para discrição.", sess.Estado.Nivel, topLvl))
+	} else if sess.Estado.Nivel >= stealthLvl {
+		b.addLog(fmt.Sprintf("🕵️ Modo Stealth ativo (Nv. %d >= %d): taxa de caça reduzida para %.0f ab/min (desacelerando XP/h).",
+			sess.Estado.Nivel, stealthLvl, b.killRate()))
+	}
 
 	return nil
 }
@@ -222,6 +238,9 @@ func (b *Bot) Run(ctx context.Context) error {
 
 	partyTicker := time.NewTicker(20 * time.Second)
 	defer partyTicker.Stop()
+
+	rankingTicker := time.NewTicker(10 * time.Minute)
+	defer rankingTicker.Stop()
 
 	for {
 		select {
@@ -269,6 +288,9 @@ func (b *Bot) Run(ctx context.Context) error {
 			if b.config.Settings.AutoParty {
 				b.ensureParty()
 			}
+
+		case <-rankingTicker.C:
+			b.updateTopLevel()
 
 		case <-dailyTicker.C:
 			if b.config.Settings.AutoDaily {
@@ -456,15 +478,108 @@ func (b *Bot) posMons() []any {
 	return h.posMons()
 }
 
+type rankingResp struct {
+	Total int `json:"total"`
+	Lista []struct {
+		Nome    string `json:"nome"`
+		Nivel   int    `json:"nivel"`
+		Abates  int    `json:"abates"`
+		Campeao string `json:"campeao"`
+	} `json:"lista"`
+}
+
+func (b *Bot) updateTopLevel() {
+	var rk rankingResp
+	if err := b.httpCli.GetJSON("/api/ranking?tipo=nivel", &rk); err != nil {
+		return
+	}
+	if len(rk.Lista) == 0 {
+		return
+	}
+	topLvl := rk.Lista[0].Nivel
+	if topLvl <= 0 {
+		return
+	}
+
+	b.mu.Lock()
+	oldTop := b.topLevel
+	b.topLevel = topLvl
+	offset := b.config.Settings.MaxLevelOffset
+	if offset <= 0 {
+		offset = 5
+	}
+	newCap := topLvl - offset
+	b.mu.Unlock()
+
+	if oldTop != topLvl {
+		b.addLog(fmt.Sprintf("📊 Ranking do servidor: Top #1 é %s (Lv. %d). Teto da party: Lv. %d (-%d níveis para discrição).",
+			rk.Lista[0].Nome, topLvl, newCap, offset))
+	}
+}
+
+func (b *Bot) getTopLevel() int {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	if b.topLevel > 0 {
+		return b.topLevel
+	}
+	return 40
+}
+
 // killRate é quantos abates por minuto o bot simula em Runeterra.
 func (b *Bot) killRate() float64 {
 	b.mu.RLock()
 	r := b.config.Settings.KillRate
+	stealthLvl := b.config.Settings.StealthLevel
+	if stealthLvl <= 0 {
+		stealthLvl = 30
+	}
+	stealthRate := b.config.Settings.StealthKillRate
+	lvl := b.status.Level
 	b.mu.RUnlock()
+
 	if r <= 0 {
 		r = 32 // taxa ideal calibrada (~50 ab/min em grupo sem recusa)
 	}
+
+	// Quando chegar no nível 30+, reduz a taxa de abates para desacelerar o ganho de XP/hora e não chamar atenção
+	if lvl >= stealthLvl {
+		if stealthRate > 0 {
+			return stealthRate
+		}
+		return math.Round(r * 0.5) // reduz pela metade (ex: 32 -> 16 ab/min)
+	}
+
 	return r
+}
+
+func (b *Bot) maxLevel() int {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	return b.maxLevelLocked()
+}
+
+func (b *Bot) maxLevelLocked() int {
+	// Se o usuário fixou explicitamente um MaxLevel > 0 em settings, respeita como teto fixo
+	if b.config.Settings.MaxLevel > 0 {
+		return b.config.Settings.MaxLevel
+	}
+
+	offset := b.config.Settings.MaxLevelOffset
+	if offset <= 0 {
+		offset = 5
+	}
+
+	top := b.topLevel
+	if top <= 0 {
+		top = 40 // fallback seguro caso o ranking ainda não tenha respondido
+	}
+
+	dynamicCap := top - offset
+	if dynamicCap < 1 {
+		dynamicCap = 1
+	}
+	return dynamicCap
 }
 
 // SetKillRate ajusta os abates/min em tempo real (usado pelo teste de limite do servidor).
@@ -510,6 +625,7 @@ func (b *Bot) huntStep(dt float64) {
 func (b *Bot) creditarAbate(m *inimigoArena) {
 	b.mu.Lock()
 	st := &b.session.Estado
+	maxLvl := b.maxLevelLocked()
 	bonus := 1.0
 	if v, ok := b.status.Extra["partyBonusXp"].(float64); ok && v > 0 {
 		bonus = v
@@ -525,17 +641,43 @@ func (b *Bot) creditarAbate(m *inimigoArena) {
 		st.Totais.PorMonstro = make(map[string]int)
 	}
 	st.Totais.PorMonstro[m.Nome]++
-	ganharXpEstado(st, xp)
-	b.expEarned += xp
+	prevNivel := st.Nivel
+	ganharXpEstado(st, xp, maxLvl)
+	if prevNivel < maxLvl {
+		b.expEarned += xp
+	}
 
 	b.status.Level = st.Nivel
 	b.status.Gold = int64(st.Ouro)
 	b.status.Kills = st.Totais.Abates
 	abates := st.Totais.Abates
+	stealthLvl := b.config.Settings.StealthLevel
+	if stealthLvl <= 0 {
+		stealthLvl = 30
+	}
+	entrouStealth := prevNivel < stealthLvl && st.Nivel >= stealthLvl
+	atingiuCap := prevNivel < maxLvl && st.Nivel >= maxLvl
 	b.mu.Unlock()
 
+	if entrouStealth {
+		b.addLog(fmt.Sprintf("🕵️ Nível %d alcançado! Modo stealth ativo: XP/h reduzido (taxa de caça %.0f ab/min) para discrição.",
+			st.Nivel, b.killRate()))
+	}
+
+	if atingiuCap {
+		b.addLog(fmt.Sprintf("🏆 Teto seguro atingido (Nv. %d, 5 abaixo do topo %d)! XP congelado para discrição.",
+			maxLvl, b.getTopLevel()))
+	}
+
 	if abates%20 == 0 {
-		b.addLog(fmt.Sprintf("⚔️ %d abates — caçando em Runeterra (nível %d).", abates, b.status.Level))
+		if b.status.Level >= maxLvl {
+			b.addLog(fmt.Sprintf("⚔️ %d abates — caçando em Runeterra (nível %d [CAP SEGURO]).", abates, b.status.Level))
+		} else if b.status.Level >= stealthLvl {
+			b.addLog(fmt.Sprintf("⚔️ %d abates — caçando em Runeterra (nível %d/%d [STEALTH %.0f ab/min]).",
+				abates, b.status.Level, maxLvl, b.killRate()))
+		} else {
+			b.addLog(fmt.Sprintf("⚔️ %d abates — caçando em Runeterra (nível %d/%d).", abates, b.status.Level, maxLvl))
+		}
 	}
 }
 
@@ -605,9 +747,28 @@ func (b *Bot) onWSMessage(data []byte) {
 		}
 		b.mu.Lock()
 		if b.session.Estado.Local == "arena" {
-			ganharXpEstado(&b.session.Estado, xp)
-			b.expEarned += xp
+			maxLvl := b.maxLevelLocked()
+			prevNivel := b.session.Estado.Nivel
+			ganharXpEstado(&b.session.Estado, xp, maxLvl)
+			if prevNivel < maxLvl {
+				b.expEarned += xp
+			}
 			b.status.Level = b.session.Estado.Nivel
+			stealthLvl := b.config.Settings.StealthLevel
+			if stealthLvl <= 0 {
+				stealthLvl = 30
+			}
+			entrouStealth := prevNivel < stealthLvl && b.session.Estado.Nivel >= stealthLvl
+			atingiuCap := prevNivel < maxLvl && b.session.Estado.Nivel >= maxLvl
+			b.mu.Unlock()
+			if entrouStealth {
+				b.addLog(fmt.Sprintf("🕵️ Nível %d alcançado via grupo! Modo stealth ativo: XP/h reduzido para discrição.", b.session.Estado.Nivel))
+			}
+			if atingiuCap {
+				b.addLog(fmt.Sprintf("🏆 Teto seguro atingido via grupo (Nv. %d, 5 abaixo do topo %d)! XP congelado para discrição.",
+					maxLvl, b.getTopLevel()))
+			}
+			return
 		}
 		b.mu.Unlock()
 	}

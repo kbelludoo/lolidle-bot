@@ -215,3 +215,87 @@ func TestAutoUpgradeNaoEstouraOrcamento(t *testing.T) {
 		t.Fatalf("pontos de habilidade devia ser 0, deu %d", b.session.Estado.Pontos)
 	}
 }
+
+func TestCreditarAbateRespeitaMaxLevel(t *testing.T) {
+	b := NewBot(AccountConfig{
+		ID:   "test",
+		Name: "test",
+		Settings: GameSettings{
+			MaxLevel: 35,
+		},
+	})
+	b.session.Estado.Nivel = 34
+	b.session.Estado.Exp = xpParaNivel(34) - 10
+	m := &inimigoArena{
+		ID:       "m1",
+		Nome:     "Lobo Gigante",
+		Nivel:    35,
+		XpMult:   100.0,
+		OuroMult: 1.0,
+	}
+
+	// Primeiro abate leva ao 35
+	b.creditarAbate(m)
+	if b.status.Level != 35 {
+		t.Fatalf("esperava nível 35, deu %d", b.status.Level)
+	}
+
+	// Segundo abate NÃO deve passar de 35
+	b.creditarAbate(m)
+	if b.status.Level != 35 {
+		t.Fatalf("nível passou de 35: %d", b.status.Level)
+	}
+	if b.session.Estado.Exp != 0 {
+		t.Fatalf("exp deve estar zerada no cap 35, deu %f", b.session.Estado.Exp)
+	}
+}
+
+func TestDynamicMaxLevel5AbaixoDoTopo(t *testing.T) {
+	b := NewBot(AccountConfig{
+		ID:   "test",
+		Name: "test",
+		Settings: GameSettings{
+			MaxLevelOffset: 5,
+		},
+	})
+	// Topo 40 -> Cap 35
+	b.topLevel = 40
+	if cap := b.maxLevel(); cap != 35 {
+		t.Fatalf("topLevel=40, offset=5 devia dar cap=35, deu %d", cap)
+	}
+
+	// Topo sobe para 42 -> Cap automaticamente 37
+	b.topLevel = 42
+	if cap := b.maxLevel(); cap != 37 {
+		t.Fatalf("topLevel=42, offset=5 devia dar cap=37, deu %d", cap)
+	}
+}
+
+func TestStealthKillRateNivel30(t *testing.T) {
+	b := NewBot(AccountConfig{
+		ID:   "test",
+		Name: "test",
+		Settings: GameSettings{
+			KillRate:     32,
+			StealthLevel: 30,
+		},
+	})
+
+	// Nível 29: taxa total (32)
+	b.status.Level = 29
+	if r := b.killRate(); r != 32 {
+		t.Fatalf("nível 29 devia ter taxa normal 32, deu %f", r)
+	}
+
+	// Nível 30: taxa reduzida para metade (16) para desacelerar XP/h
+	b.status.Level = 30
+	if r := b.killRate(); r != 16 {
+		t.Fatalf("nível 30 devia ter taxa stealth 16, deu %f", r)
+	}
+
+	// Nível 33: continua na taxa stealth (16)
+	b.status.Level = 33
+	if r := b.killRate(); r != 16 {
+		t.Fatalf("nível 33 devia ter taxa stealth 16, deu %f", r)
+	}
+}

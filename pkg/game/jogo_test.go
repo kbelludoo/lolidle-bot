@@ -56,6 +56,32 @@ func TestGanharXpEstadoSobeDeNivel(t *testing.T) {
 	}
 }
 
+func TestGanharXpEstadoRespeitaLimite35(t *testing.T) {
+	// Nível 34 prestes a subir: deve parar em 35 com Exp zerada
+	st := &PlayerState{Nivel: 34, Exp: 0}
+	ganharXpEstado(st, 999_999_999) // XP astronômico
+	if st.Nivel != 35 {
+		t.Fatalf("nível = %d, queria exatamente 35 (teto de segurança da party)", st.Nivel)
+	}
+	if st.Exp != 0 {
+		t.Fatalf("exp no nível 35 deve zerar como motor.js, veio %.1f", st.Exp)
+	}
+
+	// Não ganha mais XP no nível 35
+	ganharXpEstado(st, 500_000)
+	if st.Nivel != 35 || st.Exp != 0 {
+		t.Fatalf("ganhou XP acima do limite 35: nível=%d exp=%.1f", st.Nivel, st.Exp)
+	}
+}
+
+func TestGanharXpEstadoRespeitaLimiteCustom(t *testing.T) {
+	st := &PlayerState{Nivel: 10, Exp: 0}
+	ganharXpEstado(st, 999_999_999, 20)
+	if st.Nivel != 20 {
+		t.Fatalf("nível = %d, queria limite customizado 20", st.Nivel)
+	}
+}
+
 func TestRelogioMundialEstaNaFaixaDoDia(t *testing.T) {
 	r := relogioMundial(1_700_000_000_000)
 	if r < 0 || r >= cicloDoDia {
@@ -67,7 +93,7 @@ func TestTabelaProgressao(t *testing.T) {
 	taxaHora := 750000.0 // média real medida (~750k exp/h)
 	totalXP := 0.0
 	t.Logf("\n%-6s %-12s %-12s %-15s %-15s\n", "Nível", "XP do Nível", "XP Total", "Tempo no Nível", "Tempo Acumulado")
-	for n := 1; n < nivelMax; n++ {
+	for n := 1; n < nivelMaxJogo; n++ {
 		precisa := xpParaNivel(n)
 		totalXP += precisa
 		horasNivel := precisa / taxaHora

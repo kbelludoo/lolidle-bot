@@ -217,6 +217,18 @@ Em jogos onde o mundo aberto possui modo cooperativo (party/grupo):
 * O servidor derruba sessões com `401 Unauthorized` se houver múltiplas conexões simultâneas na mesma conta.
 * Para formar uma party de 4 jogadores, utilize **4 contas distintas cadastradas**, preferencialmente isoladas por IPs privados/secundários da VPS (`bindIP: 10.0.0.X`) para máxima discrição.
 
+#### G. Padrão Circuit Breaker de Anti-Cheat (Lição Crítica de Prevenção de Ban)
+* **O Gatilho da Suspensão:** Servidores com anti-cheat server-side rastreiam a taxa de erros heurísticos (ex: `"experiência rápida demais para este personagem"`). Se um bot continuar caçando e insistir em múltiplos `PUT /api/save` enquanto o servidor estiver recusando o progresso, o sistema automatizado de segurança detecta a discrepância acumulada e aplica suspensão temporária de 7 dias com o motivo `"uso de programas de terceiros"`.
+* **A Regra do Disjuntor (Circuit Breaker):**
+  1. Ao receber qualquer resposta com `recusado: true` ou erro de taxa/limite, o bot deve **desarmar o combate imediatamente** (`AutoHunt = false`).
+  2. Forçar recuo para zona segura/Fonte (`local: "fonte"`).
+  3. Resfriamento obrigatório: **pausar novos saves por 15 a 30 minutos** até o relógio real do servidor avançar e absorver a margem temporal.
+  4. Recarregar o estado canônico exclusivamente via `GET /api/eu`.
+* **Cálculo da Taxa Coletiva em Party (Collective Throttling):**
+  Em grupos onde cada abate compartilha EXP (+45% de bônus via frames de WebSocket), a soma das mortes de todos os integrantes canaliza XP em massa para cada membro. A taxa individual deve ser rigorosamente balanceada para que a soma nunca ultrapasse a produtividade de um jogador solo:
+  $$\text{KillRate}_{\text{individual}} \le \frac{\text{KillRate}_{\text{solo\_seguro}}}{N_{\text{membros}} \times (1 + \text{BônusGrupo})}$$
+  Exemplo: se o teto humano solo for 40 monstros/minuto, em um grupo de 4 com bônus de 45%, cada bot deve matar no máximo $40 / (4 \times 1.45) \approx 7\text{ monstros/minuto}$. Taxas superiores acumulam XP mais rápido do que o relógio físico permite salvar.
+
 ---
 
 ## ⚠️ ARMADILHAS COMUNS QUE A IA DEVE EVITAR

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -24,11 +25,12 @@ type Target struct {
 
 func findBrowser() string {
 	candidates := []string{
-		`C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`,
+		`C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe`,
 		`C:\Program Files\Google\Chrome\Application\chrome.exe`,
 		`C:\Program Files (x86)\Google\Chrome\Application\chrome.exe`,
+		os.Getenv("LOCALAPPDATA") + `\BraveSoftware\Brave-Browser\Application\brave.exe`,
 		os.Getenv("LOCALAPPDATA") + `\Google\Chrome\Application\chrome.exe`,
-		`C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe`,
+		`C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`,
 	}
 	for _, c := range candidates {
 		if _, err := os.Stat(c); err == nil {
@@ -39,69 +41,47 @@ func findBrowser() string {
 }
 
 func main() {
-	user := "kbelludoo"
-	pass := "ECTbb,,0209"
-
-	if len(os.Args) >= 3 {
-		user = os.Args[1]
-		pass = os.Args[2]
-	} else {
-		// Tentar ler a primeira conta de accounts.json
-		if data, err := os.ReadFile("accounts.json"); err == nil {
-			var accs []game.AccountConfig
-			if json.Unmarshal(data, &accs) == nil && len(accs) > 0 {
-				for _, a := range accs {
-					if a.Credentials.Email != "" && a.Credentials.Password != "" && a.Credentials.Token == "" {
-						user = a.Credentials.Email
-						pass = a.Credentials.Password
-						break
-					}
-				}
-			}
-		}
-	}
-
 	fmt.Println("================================================================================")
-	fmt.Printf("⚡ LOL IDLE — AUTENTICADOR MULTI-CONTAS AUTOMÁTICO (CDP BRIDGE)\n")
-	fmt.Printf("🔑 Conta alvo: %s\n", user)
+	fmt.Printf("⚡ LOL IDLE — BRAVE LIVE SESSION WATCHER & CAPTURADOR AUTOMÁTICO\n")
 	fmt.Println("================================================================================")
 
 	browserPath := findBrowser()
 	if browserPath == "" {
-		log.Fatalf("Erro: Nenhum navegador Chromium encontrado (Edge, Chrome ou Brave).")
+		log.Fatalf("Erro: Brave ou Chromium não encontrado.")
 	}
 
 	port := 9222
-	userDataDir, err := os.MkdirTemp("", "lolidle_cdp_*")
+	userDataDir, err := os.MkdirTemp("", "lolidle_brave_*")
 	if err != nil {
 		log.Fatalf("Erro ao criar perfil temporário: %v", err)
 	}
-	defer os.RemoveAll(userDataDir)
 
 	args := []string{
 		fmt.Sprintf("--remote-debugging-port=%d", port),
 		fmt.Sprintf("--user-data-dir=%s", userDataDir),
 		"--no-first-run",
 		"--no-default-browser-check",
-		"--disable-features=msFirstRunDialog,msSyncConfirmationDialog",
-		"--window-size=1200,800",
+		"--window-size=1280,850",
 		"https://lolidle.com/jogar",
 	}
 
-	log.Printf("[CDP] Iniciando navegador em %s ...", browserPath)
+	log.Printf("[Brave Watcher] Abrindo navegador em: %s", browserPath)
 	cmd := exec.Command(browserPath, args...)
 	if err := cmd.Start(); err != nil {
-		log.Fatalf("Falha ao iniciar processo do navegador: %v", err)
+		log.Fatalf("Falha ao iniciar processo do Brave: %v", err)
 	}
-	defer func() {
-		_ = cmd.Process.Kill()
-		_ = cmd.Wait()
-	}()
+
+	fmt.Println("--------------------------------------------------------------------------------")
+	fmt.Println("👉 A janela do Brave foi aberta no seu monitor.")
+	fmt.Println("👉 Faça o login normalmente com seu email/senha ou Google.")
+	fmt.Println("👉 NÃO precisa sair ou deslogar! O script captura o token ativo automaticamente,")
+	fmt.Println("   injeta na VPS e ativa o bot na hora sem derrubar a sessão!")
+	fmt.Println("--------------------------------------------------------------------------------")
 
 	// Aguardar CDP endpoint com URL lolidle.com
 	var pageWS string
 	for i := 0; i < 40; i++ {
-		time.Sleep(300 * time.Millisecond)
+		time.Sleep(400 * time.Millisecond)
 		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/json/list", port))
 		if err == nil {
 			body, _ := io.ReadAll(resp.Body)
@@ -125,7 +105,7 @@ func main() {
 		log.Fatalf("Timeout aguardando página do LoL Idle no navegador.")
 	}
 
-	log.Printf("[CDP] Conectando ao WebSocket de depuração da aba...")
+	log.Printf("[Brave Watcher] Conectado ao depurador da aba via WebSocket!")
 	ws, _, err := websocket.DefaultDialer.Dial(pageWS, nil)
 	if err != nil {
 		log.Fatalf("Falha ao conectar no CDP WebSocket: %v", err)
@@ -155,64 +135,25 @@ func main() {
 	sendCDP(1, "Runtime.enable", nil)
 	sendCDP(2, "Page.enable", nil)
 
-	fmt.Println("--------------------------------------------------------------------------------")
-	fmt.Println("👉 A janela do jogo abriu no seu monitor.")
-	fmt.Println("👉 O login e senha já estão sendo digitados automaticamente.")
-	fmt.Println("👉 Caso apareça o checkbox do Cloudflare ('Verificar se você é humano'), clique nele.")
-	fmt.Println("👉 O bot detecta o login na hora, captura o token e fecha o navegador sozinho!")
-	fmt.Println("--------------------------------------------------------------------------------")
-
-	token := ""
-	charName := ""
 	reqID := 10
-
-	ticker := time.NewTicker(1200 * time.Millisecond)
+	ticker := time.NewTicker(1500 * time.Millisecond)
 	defer ticker.Stop()
-	timeout := time.After(180 * time.Second)
 
-	evalScript := fmt.Sprintf(`
+	evalScript := `
 		(function() {
 			const tok = localStorage.getItem('lol-idle-token') || localStorage.getItem('darius-idle-token');
 			const nome = localStorage.getItem('lol-idle-ultimo') || localStorage.getItem('darius-idle-ultimo');
-			if (tok) {
+			if (tok && tok.length > 20) {
 				return { status: "logged_in", token: tok, nome: nome || '' };
 			}
-
-			const email = document.querySelector('#entrada-email');
-			const senha = document.querySelector('#entrada-senha');
-			if (email && email.value !== %q) {
-				email.value = %q;
-				email.dispatchEvent(new Event('input', { bubbles: true }));
-				email.dispatchEvent(new Event('change', { bubbles: true }));
-			}
-			if (senha && senha.value !== %q) {
-				senha.value = %q;
-				senha.dispatchEvent(new Event('input', { bubbles: true }));
-				senha.dispatchEvent(new Event('change', { bubbles: true }));
-			}
-
-			const turnstileVal = document.querySelector('[name="cf-turnstile-response"]')?.value || '';
-			const btn = document.querySelector('#entrada-enviar');
-			const erro = document.querySelector('#entrada-erro')?.textContent || '';
-
-			if (btn && turnstileVal.length > 10 && !btn.disabled) {
-				btn.click();
-				return { status: "submitting", erro: erro };
-			}
-
-			return {
-				status: "waiting",
-				turnstileLen: turnstileVal.length,
-				erro: erro
-			};
+			return { status: "waiting" };
 		})()
-	`, user, user, pass, pass)
+	`
+
+	capturedTokens := make(map[string]bool)
 
 	for {
 		select {
-		case <-timeout:
-			log.Fatalf("Timeout de 3 minutos atingido. Tente novamente executando 'go run ./cmd/login'")
-
 		case <-ticker.C:
 			reqID++
 			sendCDP(reqID, "Runtime.evaluate", map[string]any{
@@ -233,84 +174,158 @@ func main() {
 				val := res.Result.Result.Value
 				st, _ := val["status"].(string)
 				if st == "logged_in" {
-					token, _ = val["token"].(string)
-					charName, _ = val["nome"].(string)
-				} else if st == "submitting" {
-					log.Printf("[Autenticador] Turnstile resolvido! Enviando formulário...")
+					token, _ := val["token"].(string)
+					nome, _ := val["nome"].(string)
+
+					if token != "" && !capturedTokens[token] {
+						capturedTokens[token] = true
+						handleCapturedToken(token, nome)
+					}
 				}
 			}
 		}
+	}
+}
 
-		if token != "" {
-			break
-		}
+func handleCapturedToken(token, localNome string) {
+	fmt.Println("================================================================================")
+	log.Printf("🎉 NOVO TOKEN CAPTURADO DO BRAVE! (%s...)", token[:12])
+	if localNome != "" {
+		log.Printf("Nome LocalStorage: %s", localNome)
 	}
 
-	fmt.Println("================================================================================")
-	log.Printf("🎉 SUCESSO! Token de sessão obtido para '%s'!", user)
-	if charName != "" {
-		log.Printf("Personagem detectado: %s", charName)
+	// 1. Validar via GET /api/eu e pegar dados reais
+	realNome, campeao := verifyTokenOnline(token)
+	if realNome == "" {
+		realNome = localNome
 	}
-	fmt.Println("================================================================================")
+	log.Printf("Personagem Confirmado: %s (Campeão: %s)", realNome, campeao)
 
-	saveTokenToAccounts(user, pass, token, charName)
+	// 2. Salvar em accounts.json
+	saveTokenToAccounts(realNome, campeao, token)
 
-	fmt.Println()
-	fmt.Println("🚀 Agora você já pode iniciar o bot multi-contas nativo com:")
-	fmt.Println("   go run .")
+	// 3. Sincronizar com VPS
+	syncToVPS()
+
+	fmt.Println("--------------------------------------------------------------------------------")
+	fmt.Printf("✔ SUCESSO! %s está ativo e sincronizado com a VPS!\n", realNome)
+	fmt.Println("👉 Se desejar conectar outro personagem da party, basta trocar de conta no Brave!")
 	fmt.Println("================================================================================")
 }
 
-func saveTokenToAccounts(user, pass, token, charName string) {
+func verifyTokenOnline(token string) (string, string) {
+	req, err := http.NewRequest("GET", "https://lolidle.com/api/eu", nil)
+	if err != nil {
+		return "", ""
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("X-Idioma", "pt")
+	req.Header.Set("X-Instancia", "verify_"+fmt.Sprintf("%d", time.Now().UnixNano()))
+	req.Header.Set("Origin", "https://lolidle.com")
+	req.Header.Set("Referer", "https://lolidle.com/jogar")
+
+	cli := &http.Client{Timeout: 10 * time.Second}
+	resp, err := cli.Do(req)
+	if err != nil {
+		return "", ""
+	}
+	defer resp.Body.Close()
+
+	var data struct {
+		Nome    string `json:"nome"`
+		Campeao string `json:"campeao"`
+	}
+	_ = json.NewDecoder(resp.Body).Decode(&data)
+	return data.Nome, data.Campeao
+}
+
+func saveTokenToAccounts(charName, campeao, token string) {
 	configFile := "accounts.json"
 	var configs []game.AccountConfig
 
-	if data, err := os.ReadFile(configFile); err == nil {
-		_ = json.Unmarshal(data, &configs)
+	data, err := os.ReadFile(configFile)
+	if err != nil {
+		log.Printf("Erro ao ler accounts.json: %v", err)
+		return
+	}
+	if err := json.Unmarshal(data, &configs); err != nil {
+		log.Printf("Erro ao parsear accounts.json: %v", err)
+		return
 	}
 
-	found := false
+	matched := false
+	lowerChar := strings.ToLower(charName)
+
 	for i, c := range configs {
-		if c.Credentials.Email == user || c.ID == user || (charName != "" && c.Name == charName) {
+		// Bate pelo nome do personagem ou ID
+		if strings.ToLower(c.Name) == lowerChar || strings.ToLower(c.ID) == lowerChar {
 			configs[i].Credentials.Token = token
-			configs[i].Credentials.Password = pass
 			configs[i].Enabled = true
-			if charName != "" {
-				configs[i].Name = charName
-			}
-			found = true
+			matched = true
+			log.Printf("[accounts.json] Token atualizado para conta '%s' (%s)", configs[i].Name, configs[i].ID)
 			break
 		}
 	}
 
-	if !found {
-		name := charName
-		if name == "" {
-			name = user
+	if !matched {
+		// Tentar bater pelo campeão se o nome for novo
+		for i, c := range configs {
+			if strings.EqualFold(campeao, "taric") && strings.Contains(c.ID, "kbelludoo") {
+				configs[i].Credentials.Token = token
+				configs[i].Name = charName
+				configs[i].Enabled = true
+				matched = true
+				break
+			}
+			if strings.EqualFold(campeao, "yasuo") && strings.Contains(c.ID, "maumau") {
+				configs[i].Credentials.Token = token
+				configs[i].Name = charName
+				configs[i].Enabled = true
+				matched = true
+				break
+			}
 		}
-		configs = append(configs, game.AccountConfig{
-			ID:      user,
-			Name:    name,
-			Enabled: true,
-			Credentials: game.GameCredentials{
-				Email:    user,
-				Password: pass,
-				Token:    token,
-			},
-			Settings: game.GameSettings{
-				HuntTarget: "Summoner's Rift",
-				AutoHunt:   true,
-				AutoSell:   true,
-				AutoHeal:   true,
-				AutoDaily:  true,
-				AutoChests: true,
-				AutoSacks:  true,
-				Lure:       1,
-			},
-		})
+	}
+
+	if !matched {
+		log.Printf("[accounts.json] Conta não mapeada, atualizando a primeira vaga livre...")
+		for i := range configs {
+			if configs[i].Credentials.Token == "" || configs[i].Credentials.Token == token {
+				configs[i].Credentials.Token = token
+				configs[i].Name = charName
+				configs[i].Enabled = true
+				matched = true
+				break
+			}
+		}
 	}
 
 	out, _ := json.MarshalIndent(configs, "", "  ")
 	_ = os.WriteFile(configFile, out, 0644)
-	log.Printf("[Autenticador] Token salvo permanentemente em accounts.json!")
+}
+
+func syncToVPS() {
+	sshKey := `C:\Users\kbell\.ssh\ssh-key-2026-10-06.key`
+	if _, err := os.Stat(sshKey); err != nil {
+		log.Printf("Aviso: Chave SSH não encontrada em %s", sshKey)
+		return
+	}
+
+	log.Printf("[VPS Sync] Enviando accounts.json para a Oracle VPS (129.153.157.17)...")
+	scpCmd := exec.Command("scp", "-i", sshKey, "-o", "StrictHostKeyChecking=no", "accounts.json", "ubuntu@129.153.157.17:/home/ubuntu/lolidle-bot/accounts.json")
+	var scpErr bytes.Buffer
+	scpCmd.Stderr = &scpErr
+	if err := scpCmd.Run(); err != nil {
+		log.Printf("Falha no scp para VPS: %v (detalhe: %s)", err, scpErr.String())
+		return
+	}
+
+	log.Printf("[VPS Sync] Reiniciando lolidle.service na VPS...")
+	sshCmd := exec.Command("ssh", "-i", sshKey, "-o", "StrictHostKeyChecking=no", "ubuntu@129.153.157.17", "sudo systemctl restart lolidle.service")
+	if err := sshCmd.Run(); err != nil {
+		log.Printf("Falha ao reiniciar lolidle.service: %v", err)
+		return
+	}
+
+	log.Printf("🚀 lolidle.service reiniciado na VPS com sucesso!")
 }

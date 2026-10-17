@@ -202,3 +202,27 @@ func (c *HTTPClient) GetJSON(endpoint string, respTarget any) error {
 
 	return nil
 }
+
+func (c *HTTPClient) GetRaw(endpoint string) ([]byte, error) {
+	url := c.baseURL + endpoint
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range c.headers {
+		req.Header.Set(k, v)
+	}
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("requisição falhou (%s): %w", endpoint, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("HTTP %d em %s", resp.StatusCode, endpoint)
+	}
+
+	return io.ReadAll(resp.Body)
+}

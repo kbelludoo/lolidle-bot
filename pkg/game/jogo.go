@@ -7,7 +7,9 @@ import "math"
 // servidor aceite o /api/save e calcule o bônus de XP em grupo.
 
 const (
-	nivelMax       = 50
+	nivelMaxPadrao = 35 // Limite seguro para a party (evita chamar atenção com top level do jogo ~40)
+	nivelMaxJogo   = 50 // Limite absoluto do motor original
+	nivelMax       = nivelMaxPadrao
 	pontosPorNivel = 3
 	arenaBonusXp   = 1.3 // motor.js: ARENA = { bonus: 1.3 } (XP extra por jogar no controle)
 	cicloDoDia     = 86400.0
@@ -164,19 +166,23 @@ func clampInt(v, lo, hi int) int {
 	return v
 }
 
-// ganharXpEstado aplica XP e sobe de nível (motor.js:2834).
-func ganharXpEstado(st *PlayerState, xp float64) {
-	if st.Nivel >= nivelMax || xp <= 0 {
+// ganharXpEstado aplica XP e sobe de nível (motor.js:2834), respeitando o teto de nível (maxLvl opcional).
+func ganharXpEstado(st *PlayerState, xp float64, maxLvl ...int) {
+	limite := nivelMaxPadrao
+	if len(maxLvl) > 0 && maxLvl[0] > 0 {
+		limite = maxLvl[0]
+	}
+	if st.Nivel >= limite || xp <= 0 {
 		return
 	}
 	st.Exp += xp
-	for st.Nivel < nivelMax && st.Exp >= xpParaNivel(st.Nivel) {
+	for st.Nivel < limite && st.Exp >= xpParaNivel(st.Nivel) {
 		st.Exp -= xpParaNivel(st.Nivel)
 		st.Nivel++
 		st.Pontos++
 		st.PontosAtrib += pontosPorNivel
 	}
-	if st.Nivel >= nivelMax {
+	if st.Nivel >= limite {
 		st.Exp = 0
 	}
 }

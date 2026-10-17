@@ -40,6 +40,14 @@ type GameSettings struct {
 	ArenaY    float64 `json:"arenaY,omitempty"` // Posição base em Runeterra (0 = padrão)
 	// KillRate é quantos monstros por minuto o bot simula abater em Runeterra (0 = padrão).
 	KillRate float64 `json:"killRate,omitempty"`
+	// MaxLevel define o nível máximo fixo do personagem (0 = dinâmico: MaxLevelOffset abaixo do topo).
+	MaxLevel int `json:"maxLevel,omitempty"`
+	// MaxLevelOffset é a distância de níveis abaixo do Top 1 do servidor (padrão: 5).
+	MaxLevelOffset int `json:"maxLevelOffset,omitempty"`
+	// StealthLevel é o nível a partir do qual o XP/h é reduzido para discrição (padrão: 30).
+	StealthLevel int `json:"stealthLevel,omitempty"`
+	// StealthKillRate é a taxa reduzida de abates/min no modo stealth (padrão: 50% do KillRate).
+	StealthKillRate float64 `json:"stealthKillRate,omitempty"`
 	// PartyMembers são os nicks EM JOGO que o líder convida repetidamente para o grupo.
 	// Só é usado pela conta líder (partyLeader vazio ou igual ao próprio nick).
 	PartyMembers []string `json:"partyMembers,omitempty"`
