@@ -23,7 +23,10 @@
       "autoParty": true,
       "partyLeader": "",
       "partyMembers": ["NickMembro1", "NickMembro2"],
-      "lure": 1
+      "lure": 1,
+      "maxLevel": 0,
+      "maxLevelOffset": 5,
+      "stealthLevel": 30
     }
   },
   {
@@ -49,7 +52,10 @@
       "autoSacks": true,
       "autoParty": true,
       "partyLeader": "conta1",
-      "lure": 1
+      "lure": 1,
+      "maxLevel": 0,
+      "maxLevelOffset": 5,
+      "stealthLevel": 30
     }
   }
 ]
