@@ -15,6 +15,7 @@ Você está construindo um bot autônomo nativo em **Go (Golang)** de altíssima
 4. **Isolamento de Portas Web:** Cada bot tem sua própria porta no dashboard embutido (ex: Huntera usa 3000, Tibidle usa 3001, Sigma usa 3002). Nunca crie conflito de portas.
 5. **Segurança Absoluta de Segredos (Zero Hardcoding):** NUNCA insira tokens de API (Telegram, Discord, Twitch OAuth), senhas, cookies, chaves SSH (`*.key`) ou IPs públicos da VPS diretamente em arquivos `.go`, `.json`, `.sh`, `.bat` ou scripts que serão commitados. TODAS as credenciais devem ser obrigatoriamente carregadas via variáveis de ambiente (`os.Getenv`) ou arquivos locais no `.gitignore` (`.secrets.json`, `.env`, `accounts.json`). Commitar tokens gera vazamento público imediato!
 6. **Modo Stealth & Anti-Ban (Zero Nicks Públicos):** NUNCA exponha o nome real do personagem/treinador/streamer nos dashboards web do GitHub Pages (`docs/index.html` ou `status.json`). Sempre exiba apenas a classe/vocação, índice anônimo (ex: `Conta #1`, `Treinador #1`, `Guerreiro`, `Arqueiro`) e estatísticas técnicas (Level, EXP/h, Kills, Gold, Mapa). Transmitir nicks reais gera denúncias e banimentos manuais imediatos!
+7. **Proteção Anti-Ban Circuit Breaker Obrigatória:** Todo bot deve integrar `pkg/engine.CircuitBreaker`. Diante de qualquer recusa de save, rate-limit ou erro de anti-cheat (`experiência rápida demais`, `recusado: true`), o bot NUNCA deve insistir em novos saves. Deve desarmar o combate, recuar para zona segura e aguardar cooldown de 15 a 30 minutos. Insistir em saves rejeitados resulta em banimento de 7 dias por programa de terceiros!
 
 ---
 
@@ -25,11 +26,13 @@ bot-template-go/
 ├── main.go                     # Entrypoint universal (carrega JSON, inicia bots, web server e console ticker)
 ├── accounts.json               # Credenciais reais (IGNORADO PELO GIT)
 ├── accounts.example.json       # Exemplo limpo para o usuário
+├── AGENTS.md                   # Diretrizes universais de IA e anti-ban
 ├── go.mod / go.sum             # Módulo Go nativo (dependência única: gorilla/websocket)
 │
 ├── pkg/
 │   ├── engine/                 # [NÃO MODIFICAR A MENOS QUE NECESSÁRIO]
 │   │   ├── bot.go              # Interface GameBot e struct AccountStatus
+│   │   ├── circuit_breaker.go  # Disjuntor anti-ban, detecção de anti-cheat e cálculo de taxa coletiva
 │   │   ├── manager.go          # Gerenciador concorrente (thread-safe) de contas
 │   │   └── supervisor.go       # Goroutine runner com backoff e proteção contra panic
 │   │

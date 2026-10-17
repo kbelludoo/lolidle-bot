@@ -54,6 +54,7 @@ type Bot struct {
 	logs  []string
 
 	recusados int64 // quantos saves o servidor recusou (progresso impossível)
+	breaker   *engine.CircuitBreaker
 }
 
 func NewBot(cfg AccountConfig) *Bot {
@@ -77,7 +78,7 @@ func NewBot(cfg AccountConfig) *Bot {
 		cli.SetHeader("Authorization", "Bearer "+cfg.Credentials.Token)
 	}
 
-	return &Bot{
+	b := &Bot{
 		config:        cfg,
 		status:        st,
 		httpCli:       cli,
@@ -88,6 +89,40 @@ func NewBot(cfg AccountConfig) *Bot {
 		partyNames:    make(map[string]bool),
 		partyInvited:  make(map[string]time.Time),
 	}
+
+	b.breaker = engine.NewCircuitBreaker(cfg.ID, engine.CircuitBreakerConfig{
+		MaxFailures:       2,
+		BaseCooldown:      15 * time.Minute,
+		MaxCooldown:       60 * time.Minute,
+		BackoffMultiplier: 2.0,
+		OnTrip: func(reason string) {
+			b.addLog(fmt.Sprintf("🚨 [CIRCUIT BREAKER] Desarmado: %s. Pausando caça e saves por segurança.", reason))
+			b.mu.Lock()
+			b.config.Settings.ArenaWalk = false
+			b.session.Estado.Local = "fonte"
+			b.status.CurrentArea = "fonte"
+			b.status.Status = "protegido (cooldown)"
+			b.mu.Unlock()
+		},
+		OnReset: func() {
+			b.addLog("🛡️ [CIRCUIT BREAKER] Restaurado com sucesso! Operação normal liberada.")
+			b.mu.Lock()
+			b.status.Status = "ativo"
+			b.mu.Unlock()
+		},
+		OnHalfOpen: func() {
+			b.addLog("⏱️ [CIRCUIT BREAKER] Cooldown finalizado. Modo Half-Open: recarregando dados do /api/eu...")
+			var sess PlayerSession
+			if err := b.httpCli.GetJSON("/api/eu", &sess); err == nil {
+				b.mu.Lock()
+				b.session = sess
+				b.status.Level = sess.Estado.Nivel
+				b.mu.Unlock()
+			}
+		},
+	})
+
+	return b
 }
 
 func (b *Bot) ID() string {
@@ -539,7 +574,16 @@ func (b *Bot) killRate() float64 {
 	b.mu.RUnlock()
 
 	if r <= 0 {
-		r = 32 // taxa ideal calibrada (~50 ab/min em grupo sem recusa)
+		r = 32 // taxa ideal solo calibrada
+	}
+
+	// Proteção Coletiva Anti-Cheat: Se estiver em grupo com outros membros compartilhando EXP (+45%),
+	// calibra a taxa individual para que o ganho coletivo somado não ultrapasse a capacidade de 1 jogador solo.
+	b.partyMu.Lock()
+	partySize := len(b.partyNames)
+	b.partyMu.Unlock()
+	if partySize > 1 {
+		r = engine.CalculatePartyMaxKillRate(r, partySize, 45.0)
 	}
 
 	// Quando chegar no nível 30+, reduz a taxa de abates para desacelerar o ganho de XP/hora e não chamar atenção
@@ -547,7 +591,7 @@ func (b *Bot) killRate() float64 {
 		if stealthRate > 0 {
 			return stealthRate
 		}
-		return math.Round(r * 0.5) // reduz pela metade (ex: 32 -> 16 ab/min)
+		return math.Round(r * 0.5) // reduz pela metade
 	}
 
 	return r
@@ -599,6 +643,10 @@ func (b *Bot) SaveRecusados() int64 {
 // huntStep avança a caça em Runeterra e reporta cada abate com {t:"abateGrupo"},
 // para o servidor distribuir o XP de grupo aos companheiros próximos (jogo.js:702).
 func (b *Bot) huntStep(dt float64) {
+	if b.breaker != nil && !b.breaker.AllowAction() {
+		return
+	}
+
 	b.mu.RLock()
 	h := b.hunt
 	level := b.status.Level
@@ -1197,6 +1245,12 @@ func (b *Bot) pingPresence() {
 }
 
 func (b *Bot) salvarSave(force bool) {
+	if !force && b.breaker != nil && !b.breaker.AllowAction() {
+		b.addLog(fmt.Sprintf("⏳ [CIRCUIT BREAKER] Salvamento pausado pelo disjuntor de segurança anti-ban. Cooldown restante: %v",
+			b.breaker.RemainingCooldown().Round(time.Second)))
+		return
+	}
+
 	b.mu.Lock()
 	now := time.Now().UnixMilli()
 	b.session.Estado.SalvoEm = now
@@ -1274,11 +1328,19 @@ func (b *Bot) salvarSave(force bool) {
 			continue
 		}
 
-		if rec, _ := resp["recusado"].(bool); rec {
+		rec, _ := resp["recusado"].(bool)
+		respBytes, _ := json.Marshal(resp)
+		if isReject, rejectReason := engine.IsAntiCheatRejection(200, string(respBytes)); isReject || rec {
 			b.logMu.Lock()
 			b.recusados++
 			b.logMu.Unlock()
-			b.addLog("⛔ SAVE RECUSADO pelo servidor: " + fmt.Sprint(resp) + " — sincronizando com /api/eu...")
+			if rejectReason == "" {
+				rejectReason = fmt.Sprintf("Save recusado pelo servidor: %v", resp["erro"])
+			}
+			if b.breaker != nil {
+				b.breaker.RecordFailure(rejectReason)
+			}
+			b.addLog("⛔ " + rejectReason + " — sincronizando com /api/eu...")
 			var sess PlayerSession
 			if errEu := b.httpCli.GetJSON("/api/eu", &sess); errEu == nil {
 				b.mu.Lock()
@@ -1291,6 +1353,10 @@ func (b *Bot) salvarSave(force bool) {
 		if err != nil {
 			b.addLog("⚠️ Falha ao salvar: " + err.Error())
 			return
+		}
+
+		if b.breaker != nil {
+			b.breaker.RecordSuccess()
 		}
 
 		b.addLog(fmt.Sprintf("💾 Save confirmado com sucesso (Nv. %d | Ouro: %d | Kills: %d)",
