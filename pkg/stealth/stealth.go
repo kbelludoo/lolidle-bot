@@ -10,8 +10,8 @@ import (
 
 var (
 	URLRE       = regexp.MustCompile(`(?i)^https?://`)
-	NickRE      = regexp.MustCompile(`(?i)kbelludoo[0-9]*|lohmoreira|\blrn\b`)
-	WebNickRE   = regexp.MustCompile(`(?i)kbelludoo\w*|lohmoreira|\blrn\b`)
+	NickRE      = regexp.MustCompile(`(?i)l?kbelludoo\w*|lohmoreira|l?lrn\b|l?maumau\w*`)
+	WebNickRE   = regexp.MustCompile(`(?i)l?kbelludoo\w*|lohmoreira|l?lrn\b|l?maumau\w*`)
 	EmailRE     = regexp.MustCompile(`[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`)
 	IPRE        = regexp.MustCompile(`\b\d{1,3}(?:\.\d{1,3}){3}\b`)
 	SessionRE   = regexp.MustCompile(`\([^)]*@[^)]*\)`)

@@ -213,6 +213,16 @@ func sanitizeBotPayload(bots map[string]any) any {
 		}
 		replaceLogNick(acc, "logs", label)
 	})
+	eachAccount(bots, "lolidle", func(i int, acc map[string]any) {
+		label := fmt.Sprintf("Campeão #%d", i+1)
+		acc["name"] = label
+		if _, ok := acc["id"].(string); ok {
+			acc["id"] = fmt.Sprintf("acc-%d", i+1)
+		}
+		delete(acc, "bindIp")
+		delete(acc, "outboundIp")
+		replaceLogNick(acc, "logs", label)
+	})
 	if status := nestedMap(bots, "baiak", "status"); status != nil {
 		if botMap, ok := status["bots"].(map[string]any); ok {
 			for i, k := range sortedKeys(botMap) {
@@ -355,12 +365,20 @@ func buildBots(results map[string]map[string]any) map[string]any {
 			"dashboardUrl": "https://kbelludoo.github.io/baiak-idle-bot/",
 			"status":       results["baiak"],
 		},
+		"lolidle": map[string]any{
+			"name":         "LoL Idle Multi-Bot",
+			"game":         "LoL Idle",
+			"engine":       "Go Native Engine (Runeterra 4x Party)",
+			"port":         3011,
+			"dashboardUrl": "https://kbelludoo.github.io/lolidle-bot/",
+			"status":       results["lolidle"],
+		},
 	}
 }
 
 func countActive(results map[string]map[string]any) int {
 	active := 0
-	for _, key := range []string{"huntera", "tibidle", "sigma", "leveling", "pokeidle", "pokeidleworld", "kickminer"} {
+	for _, key := range []string{"huntera", "tibidle", "sigma", "leveling", "pokeidle", "pokeidleworld", "kickminer", "lolidle"} {
 		if isOnline(results[key]) {
 			active++
 		}

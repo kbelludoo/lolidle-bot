@@ -52,7 +52,7 @@ func getTelegramConfig() (string, string) {
 }
 
 var (
-	nickRegex        = regexp.MustCompile(`(?i)(kbelludoo\d*|lohmoreira|\blrn\b)`)
+	nickRegex        = regexp.MustCompile(`(?i)(l?kbelludoo\w*|lohmoreira|l?lrn\b|l?maumau\w*)`)
 	emailRegex       = regexp.MustCompile(`(?i)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}`)
 	emailParenRegex  = regexp.MustCompile(`(?i)\([^)]*@[^)]*\)`)
 	publicIPRegex    = regexp.MustCompile(`\b(129\.153|141\.148|193\.122)\.\d{1,3}\.\d{1,3}\b`)
@@ -631,6 +631,29 @@ func syncHub() {
 							if bm, ok := botsMap[k].(map[string]interface{}); ok {
 								bm["name"] = ""
 								bm["label"] = fmt.Sprintf("Conta %d", idx+1)
+							}
+						}
+					}
+				case "lolidle":
+					if accs, ok := stMap["accounts"].([]interface{}); ok {
+						for i, a := range accs {
+							if am, ok := a.(map[string]interface{}); ok {
+								label := fmt.Sprintf("Campeão #%d", i+1)
+								am["name"] = label
+								am["id"] = fmt.Sprintf("acc-%d", i+1)
+								delete(am, "bindIp")
+								delete(am, "outboundIp")
+								if logs, ok := am["logs"].([]interface{}); ok {
+									safeLogs := make([]interface{}, len(logs))
+									for li, l := range logs {
+										if s, ok := l.(string); ok {
+											safeLogs[li] = emailParenRegex.ReplaceAllString(nickRegex.ReplaceAllString(s, label), "(Sessão Autenticada)")
+										} else {
+											safeLogs[li] = l
+										}
+									}
+									am["logs"] = safeLogs
+								}
 							}
 						}
 					}

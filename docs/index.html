@@ -286,6 +286,26 @@
       background: linear-gradient(90deg, var(--hextech-gold), var(--magic-blue));
     }
 
+    .badge-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      background: rgba(200, 170, 110, 0.12);
+      border: 1px solid rgba(200, 170, 110, 0.35);
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--hextech-gold-bright);
+      font-family: var(--font-mono);
+      transition: all 0.15s ease;
+    }
+
+    .badge-item:hover {
+      background: rgba(200, 170, 110, 0.25);
+      border-color: var(--hextech-gold-bright);
+    }
+
     .champ-header {
       display: flex;
       justify-content: space-between;
@@ -632,6 +652,18 @@
                 <div class="c-stat-item">
                   <span class="c-stat-label">🗺️ Local</span>
                   <span class="c-stat-val" style="font-size: 0.78rem;">${acc.currentArea === 'arena' ? 'Runeterra' : (acc.currentArea || 'Runeterra')}</span>
+                </div>
+              </div>
+
+              <div style="margin-top: 14px; margin-bottom: 8px;">
+                <div style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; margin-bottom: 5px; display: flex; justify-content: space-between;">
+                  <span>🛡️ Itens Equipados (Auto-Equip):</span>
+                  <span style="color: var(--hextech-gold);">${((acc.extra && acc.extra.itens) || []).length}/5</span>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 5px; min-height: 24px; align-items: center;">
+                  ${((acc.extra && acc.extra.itens) && acc.extra.itens.length > 0)
+                    ? acc.extra.itens.map(it => `<span class="badge-item" title="Item Equipado">⚔️ ${it}</span>`).join('')
+                    : `<span style="color: var(--text-dim); font-size: 0.72rem; font-style: italic;">Coletando drops no mapa...</span>`}
                 </div>
               </div>
             </div>

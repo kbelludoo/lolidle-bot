@@ -870,11 +870,58 @@ func (b *Bot) healAtFountain() {
 	}
 	b.mu.Unlock()
 
+	// Visitar o Ornn na Fonte para forjar ou aprimorar equipamentos
+	b.tentarOrnnNaFonte()
+
 	b.salvarSave(true)
 
 	// Retornar à melhor rota
 	time.Sleep(1 * time.Second)
 	b.checkOptimalRoute()
+}
+
+func (b *Bot) tentarOrnnNaFonte() {
+	b.mu.Lock()
+	ouro := b.session.Estado.Ouro
+	itens := make([]any, len(b.session.Estado.Itens))
+	copy(itens, b.session.Estado.Itens)
+	b.mu.Unlock()
+
+	// 1. Tentar forjar itens equipados se tiver ouro de sobra (> 10.000)
+	if ouro > 10000 && len(itens) > 0 {
+		for idx, it := range itens {
+			itStr, ok := it.(string)
+			if !ok {
+				continue
+			}
+			p := ParseItem(itStr)
+			if p.Refino < 3 { // Tenta refino seguro até +3
+				var resp map[string]any
+				reqData := map[string]any{
+					"estado": b.session.Estado,
+					"onde":   "itens",
+					"k":      idx,
+					"vezes":  1,
+				}
+				if err := b.httpCli.PostJSON("/api/ornn/forjar", reqData, &resp); err == nil {
+					if res, ok := resp["resultado"].(map[string]any); ok {
+						if suc, _ := res["sucesso"].(bool); suc {
+							novoItem, _ := res["item"].(string)
+							b.mu.Lock()
+							if idx < len(b.session.Estado.Itens) {
+								b.session.Estado.Itens[idx] = novoItem
+							}
+							if g, ok := toFloat(res["gasto"]); ok {
+								b.session.Estado.Ouro -= g
+							}
+							b.mu.Unlock()
+							b.addLog(fmt.Sprintf("🔨 Ornn forjou com sucesso: %s (+%d)!", NomeExibicaoItem(novoItem), p.Refino+1))
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 func maxRankSkill(sk string, level int) int {
@@ -994,6 +1041,9 @@ func (b *Bot) salvarSave(force bool) {
 	b.session.Estado.SalvoEm = now
 	b.session.Estado.Relogio = relogioMundial(now)
 
+	// AutoEquip: avalia a mochila e equipa os melhores itens para o campeão
+	equipLogs := AutoEquip(&b.session.Estado, b.session.Campeao)
+
 	raw := b.session.RawEstado
 	if raw == nil {
 		raw = make(map[string]any)
@@ -1014,11 +1064,15 @@ func (b *Bot) salvarSave(force bool) {
 	if b.session.Estado.Local != "" {
 		raw["local"] = b.session.Estado.Local
 	}
-	if len(b.session.Estado.Mochila) > 0 {
+	if b.session.Estado.Mochila != nil {
 		raw["mochila"] = b.session.Estado.Mochila
+	} else {
+		raw["mochila"] = []any{}
 	}
-	if len(b.session.Estado.Itens) > 0 {
+	if b.session.Estado.Itens != nil {
 		raw["itens"] = b.session.Estado.Itens
+	} else {
+		raw["itens"] = []any{}
 	}
 	if len(b.session.Estado.Espolios) > 0 {
 		raw["espolios"] = b.session.Estado.Espolios
@@ -1029,10 +1083,19 @@ func (b *Bot) salvarSave(force bool) {
 	raw["salvoEm"] = now
 	raw["autoHab"] = false
 
+	if b.status.Extra != nil {
+		b.status.Extra["itens"] = b.session.Estado.Itens
+		b.status.Extra["mochila"] = b.session.Estado.Mochila
+	}
+
 	body := map[string]any{
 		"estado": raw,
 	}
 	b.mu.Unlock()
+
+	for _, l := range equipLogs {
+		b.addLog("🛡️ " + l)
+	}
 
 	for tent := 0; tent < 2; tent++ {
 		var resp map[string]any
