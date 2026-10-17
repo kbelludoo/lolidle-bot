@@ -2,8 +2,8 @@
   "accounts": [
     {
       "currentArea": "arena",
-      "durationSec": 963,
-      "expPerHour": 908576.626399231,
+      "durationSec": 973,
+      "expPerHour": 910516.1886213552,
       "extra": {
         "bindIP": "10.0.0.191",
         "party": [
@@ -15,10 +15,10 @@
         "partyBonusXp": 1.45,
         "proxy": ""
       },
-      "gold": 38251,
+      "gold": 38620,
       "hp": 817,
       "id": "acc-1",
-      "kills": 950,
+      "kills": 958,
       "level": 12,
       "logs": [
         "[17:09:45] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 33139 | Kills: 840)",
@@ -42,13 +42,13 @@
       "maxMana": 435,
       "name": "Campeão #1",
       "status": "hunting",
-      "updatedAt": 1792257123190,
+      "updatedAt": 1792257132990,
       "vocation": "taric"
     },
     {
       "currentArea": "arena",
-      "durationSec": 963,
-      "expPerHour": 882549.5319736273,
+      "durationSec": 973,
+      "expPerHour": 885575.835543652,
       "extra": {
         "bindIP": "10.0.0.49",
         "party": [
@@ -60,13 +60,12 @@
         "partyBonusXp": 1.45,
         "proxy": ""
       },
-      "gold": 33691,
+      "gold": 34123,
       "hp": 600,
       "id": "acc-2",
-      "kills": 814,
+      "kills": 824,
       "level": 12,
       "logs": [
-        "[17:10:15] 💾 Save confirmado com sucesso (Nv. 11 | Ouro: 29832 | Kills: 726)",
         "[17:10:27] ⚔️ 740 abates — caçando em Runeterra (nível 11).",
         "[17:10:30] 💾 Save confirmado com sucesso (Nv. 11 | Ouro: 30461 | Kills: 740)",
         "[17:10:45] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 31078 | Kills: 754)",
@@ -80,20 +79,21 @@
         "[17:11:30] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 32641 | Kills: 790)",
         "[17:11:44] ⚔️ 800 abates — caçando em Runeterra (nível 12).",
         "[17:11:45] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 33125 | Kills: 802)",
-        "[17:12:00] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 33630 | Kills: 813)"
+        "[17:12:00] 💾 Save confirmado com sucesso (Nv. 12 | Ouro: 33630 | Kills: 813)",
+        "[17:12:07] ⚔️ 820 abates — caçando em Runeterra (nível 12)."
       ],
       "mana": 375,
       "maxHp": 600,
       "maxMana": 375,
       "name": "Campeão #2",
       "status": "hunting",
-      "updatedAt": 1792257123216,
+      "updatedAt": 1792257133017,
       "vocation": "ezreal"
     },
     {
       "currentArea": "arena",
-      "durationSec": 963,
-      "expPerHour": 922204.3327301962,
+      "durationSec": 973,
+      "expPerHour": 924259.4560221935,
       "extra": {
         "bindIP": "10.0.0.217",
         "party": [
@@ -105,10 +105,10 @@
         "partyBonusXp": 1.45,
         "proxy": ""
       },
-      "gold": 37596,
+      "gold": 37949,
       "hp": 580,
       "id": "acc-3",
-      "kills": 929,
+      "kills": 939,
       "level": 12,
       "logs": [
         "[17:09:52] ⚔️ 820 abates — caçando em Runeterra (nível 12).",
@@ -132,13 +132,13 @@
       "maxMana": 440,
       "name": "Campeão #3",
       "status": "hunting",
-      "updatedAt": 1792257123136,
+      "updatedAt": 1792257132935,
       "vocation": "lux"
     },
     {
       "currentArea": "arena",
-      "durationSec": 963,
-      "expPerHour": 910623.290206073,
+      "durationSec": 973,
+      "expPerHour": 913993.1022933298,
       "extra": {
         "bindIP": "10.0.0.79",
         "party": [
@@ -150,10 +150,10 @@
         "partyBonusXp": 1.45,
         "proxy": ""
       },
-      "gold": 36967,
+      "gold": 37409,
       "hp": 590,
       "id": "acc-4",
-      "kills": 908,
+      "kills": 918,
       "level": 12,
       "logs": [
         "[17:09:53] ⚔️ 800 abates — caçando em Runeterra (nível 12).",
@@ -177,12 +177,12 @@
       "maxMana": 31,
       "name": "Campeão #4",
       "status": "hunting",
-      "updatedAt": 1792257123226,
+      "updatedAt": 1792257132927,
       "vocation": "yasuo"
     }
   ],
-  "goroutines": 31,
-  "ramAllocMB": 2.2386703491210938,
+  "goroutines": 30,
+  "ramAllocMB": 2.6311874389648438,
   "ramSysMB": 13.099861145019531,
-  "uptime": "16m4s"
+  "uptime": "16m14s"
 }
