@@ -1,0 +1,16 @@
+[Unit]
+Description=lolidle farm (motor headless em Node)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/lolidle-farm
+ExecStart=/usr/bin/node /home/ubuntu/lolidle-farm/farm.js /home/ubuntu/lolidle-farm/accounts.json
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/ubuntu/lolidle-farm/farm.log
+StandardError=append:/home/ubuntu/lolidle-farm/farm.log
+
+[Install]
+WantedBy=multi-user.target

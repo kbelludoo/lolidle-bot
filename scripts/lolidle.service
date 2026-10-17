@@ -1,0 +1,16 @@
+[Unit]
+Description=LolIdle Native Go Bot Service
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/lolidle-bot
+ExecStart=/home/ubuntu/lolidle-bot/bot-lolidle-linux
+Restart=always
+RestartSec=5
+LimitNOFILE=65535
+Environment=PORT=3011
+
+[Install]
+WantedBy=multi-user.target

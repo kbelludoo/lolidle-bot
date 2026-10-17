@@ -1,0 +1,124 @@
+{
+  "accounts": [
+    {
+      "id": "acc-1",
+      "name": "Taric (Tanque)",
+      "level": 11,
+      "vocation": "taric",
+      "hp": 817,
+      "maxHp": 817,
+      "mana": 435,
+      "maxMana": 435,
+      "gold": 20857,
+      "kills": 562,
+      "expPerHour": 826948,
+      "status": "hunting",
+      "currentArea": "arena",
+      "durationSec": 488,
+      "logs": [
+        "⚔️ 500 abates — caçando em Runeterra (nível 10).",
+        "💾 Save confirmado com sucesso (Nv. 10 | Ouro: 19047 | Kills: 522)",
+        "💾 Save confirmado com sucesso (Nv. 11 | Ouro: 19582 | Kills: 534)",
+        "✨ Pontos de atributos distribuídos para classe taric!",
+        "⚡ Habilidades elevadas de nível com limites válidos!",
+        "⚔️ 560 abates — caçando em Runeterra (nível 11)."
+      ],
+      "updatedAt": 1792256647790,
+      "extra": {
+        "party": ["Taric (Líder)", "Yasuo", "Lux", "Ezreal"],
+        "partyBonusXp": 1.45
+      }
+    },
+    {
+      "id": "acc-2",
+      "name": "Ezreal (Atirador)",
+      "level": 10,
+      "vocation": "ezreal",
+      "hp": 600,
+      "maxHp": 600,
+      "mana": 375,
+      "maxMana": 375,
+      "gold": 17149,
+      "kills": 429,
+      "expPerHour": 792310,
+      "status": "hunting",
+      "currentArea": "arena",
+      "durationSec": 488,
+      "logs": [
+        "⚔️ 380 abates — caçando em Runeterra (nível 10).",
+        "💾 Save confirmado com sucesso (Nv. 10 | Ouro: 15414 | Kills: 389)",
+        "⚔️ 400 abates — caçando em Runeterra (nível 10).",
+        "💾 Save confirmado com sucesso (Nv. 10 | Ouro: 15914 | Kills: 400)",
+        "⚔️ 420 abates — caçando em Runeterra (nível 10).",
+        "💾 Save confirmado com sucesso (Nv. 10 | Ouro: 16891 | Kills: 423)"
+      ],
+      "updatedAt": 1792256647816,
+      "extra": {
+        "party": ["Taric (Líder)", "Yasuo", "Lux", "Ezreal"],
+        "partyBonusXp": 1.45
+      }
+    },
+    {
+      "id": "acc-3",
+      "name": "Lux (Mago)",
+      "level": 11,
+      "vocation": "lux",
+      "hp": 580,
+      "maxHp": 580,
+      "mana": 440,
+      "maxMana": 440,
+      "gold": 19636,
+      "kills": 527,
+      "expPerHour": 835136,
+      "status": "hunting",
+      "currentArea": "arena",
+      "durationSec": 488,
+      "logs": [
+        "⚔️ 480 abates — caçando em Runeterra (nível 10).",
+        "💾 Save confirmado com sucesso (Nv. 11 | Ouro: 18320 | Kills: 496)",
+        "✨ Pontos de atributos distribuídos para classe lux!",
+        "⚡ Habilidades elevadas de nível com limites válidos!",
+        "⚔️ 500 abates — caçando em Runeterra (nível 11).",
+        "💾 Save confirmado com sucesso (Nv. 11 | Ouro: 19243 | Kills: 518)"
+      ],
+      "updatedAt": 1792256647836,
+      "extra": {
+        "party": ["Taric (Líder)", "Yasuo", "Lux", "Ezreal"],
+        "partyBonusXp": 1.45
+      }
+    },
+    {
+      "id": "acc-4",
+      "name": "Yasuo (Lutador)",
+      "level": 11,
+      "vocation": "yasuo",
+      "hp": 590,
+      "maxHp": 590,
+      "mana": 31,
+      "maxMana": 31,
+      "gold": 19828,
+      "kills": 523,
+      "expPerHour": 841515,
+      "status": "hunting",
+      "currentArea": "arena",
+      "durationSec": 488,
+      "logs": [
+        "⚔️ 480 abates — caçando em Runeterra (nível 10).",
+        "💾 Save confirmado com sucesso (Nv. 10 | Ouro: 18517 | Kills: 493)",
+        "⚔️ 500 abates — caçando em Runeterra (nível 11).",
+        "✨ Pontos de atributos distribuídos para classe yasuo!",
+        "⚡ Habilidades elevadas de nível com limites válidos!",
+        "⚔️ 520 abates — caçando em Runeterra (nível 11)."
+      ],
+      "updatedAt": 1792256647827,
+      "extra": {
+        "party": ["Taric (Líder)", "Yasuo", "Lux", "Ezreal"],
+        "partyBonusXp": 1.45
+      }
+    }
+  ],
+  "goroutines": 30,
+  "ramAllocMB": 2.6,
+  "ramSysMB": 13.1,
+  "uptime": "8m8s"
+}

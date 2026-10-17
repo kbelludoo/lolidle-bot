@@ -1,0 +1,55 @@
+[
+  {
+    "id": "conta1",
+    "name": "Conta 1 (IP Dedicado 1)",
+    "enabled": true,
+    "bindIP": "10.0.0.1",
+    "proxy": "",
+    "credentials": {
+      "email": "conta1@email.com",
+      "password": "senha",
+      "token": ""
+    },
+    "settings": {
+      "huntTarget": "auto",
+      "autoHunt": true,
+      "autoRoute": true,
+      "autoSell": true,
+      "autoHeal": true,
+      "autoUpgrade": true,
+      "autoDaily": true,
+      "autoChests": true,
+      "autoSacks": true,
+      "autoParty": true,
+      "partyLeader": "",
+      "partyMembers": ["NickMembro1", "NickMembro2"],
+      "lure": 1
+    }
+  },
+  {
+    "id": "conta2",
+    "name": "Conta 2 (Proxy Dedicado ou IP 2)",
+    "enabled": true,
+    "bindIP": "10.0.0.2",
+    "proxy": "http://user:pass@proxy-ip:port",
+    "credentials": {
+      "email": "conta2@email.com",
+      "password": "senha",
+      "token": ""
+    },
+    "settings": {
+      "huntTarget": "auto",
+      "autoHunt": true,
+      "autoRoute": true,
+      "autoSell": true,
+      "autoHeal": true,
+      "autoUpgrade": true,
+      "autoDaily": true,
+      "autoChests": true,
+      "autoSacks": true,
+      "autoParty": true,
+      "partyLeader": "conta1",
+      "lure": 1
+    }
+  }
+]
