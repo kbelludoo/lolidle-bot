@@ -14,10 +14,6 @@
       "kills": 0,
       "level": 0,
       "logs": [
-        "[17:40:49] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:41:19] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:41:49] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:42:19] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:42:49] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:43:20] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:43:50] Validando sessão e carregando dados reais do personagem via /api/eu...",
@@ -28,14 +24,18 @@
         "[17:46:21] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:46:51] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:47:21] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:47:51] Validando sessão e carregando dados reais do personagem via /api/eu..."
+        "[17:47:51] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:48:21] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:48:51] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:49:22] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:49:52] Validando sessão e carregando dados reais do personagem via /api/eu..."
       ],
       "mana": 0,
       "maxHp": 0,
       "maxMana": 0,
       "name": "Campeão #1",
       "status": "Erro na sessão: HTTP 401 em /api/eu: {\"erro\":\"Sessão expirada. Entre de novo.\"}",
-      "updatedAt": 1792259271714
+      "updatedAt": 1792259392406
     },
     {
       "currentArea": "auto",
@@ -51,10 +51,6 @@
       "kills": 0,
       "level": 0,
       "logs": [
-        "[17:40:49] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:41:19] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:41:49] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:42:19] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:42:49] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:43:19] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:43:49] Validando sessão e carregando dados reais do personagem via /api/eu...",
@@ -65,14 +61,18 @@
         "[17:46:20] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:46:50] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:47:21] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:47:51] Validando sessão e carregando dados reais do personagem via /api/eu..."
+        "[17:47:51] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:48:21] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:48:51] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:49:21] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:49:51] Validando sessão e carregando dados reais do personagem via /api/eu..."
       ],
       "mana": 0,
       "maxHp": 0,
       "maxMana": 0,
       "name": "Campeão #2",
       "status": "Erro na sessão: HTTP 401 em /api/eu: {\"erro\":\"Sessão expirada. Entre de novo.\"}",
-      "updatedAt": 1792259271354
+      "updatedAt": 1792259391924
     },
     {
       "currentArea": "auto",
@@ -88,10 +88,6 @@
       "kills": 0,
       "level": 0,
       "logs": [
-        "[17:40:41] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:41:12] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:41:42] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:42:12] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:42:42] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:43:12] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:43:42] Validando sessão e carregando dados reais do personagem via /api/eu...",
@@ -102,14 +98,18 @@
         "[17:46:13] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:46:43] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:47:14] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:47:44] Validando sessão e carregando dados reais do personagem via /api/eu..."
+        "[17:47:44] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:48:14] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:48:44] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:49:14] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:49:44] Validando sessão e carregando dados reais do personagem via /api/eu..."
       ],
       "mana": 0,
       "maxHp": 0,
       "maxMana": 0,
       "name": "Campeão #3",
       "status": "Erro na sessão: HTTP 401 em /api/eu: {\"erro\":\"Sessão expirada. Entre de novo.\"}",
-      "updatedAt": 1792259264310
+      "updatedAt": 1792259384909
     },
     {
       "currentArea": "auto",
@@ -125,10 +125,6 @@
       "kills": 0,
       "level": 0,
       "logs": [
-        "[17:40:41] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:41:12] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:41:42] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:42:12] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:42:42] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:43:12] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:43:42] Validando sessão e carregando dados reais do personagem via /api/eu...",
@@ -139,18 +135,22 @@
         "[17:46:13] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:46:43] Validando sessão e carregando dados reais do personagem via /api/eu...",
         "[17:47:14] Validando sessão e carregando dados reais do personagem via /api/eu...",
-        "[17:47:44] Validando sessão e carregando dados reais do personagem via /api/eu..."
+        "[17:47:44] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:48:14] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:48:44] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:49:14] Validando sessão e carregando dados reais do personagem via /api/eu...",
+        "[17:49:44] Validando sessão e carregando dados reais do personagem via /api/eu..."
       ],
       "mana": 0,
       "maxHp": 0,
       "maxMana": 0,
       "name": "Campeão #4",
       "status": "Erro na sessão: HTTP 401 em /api/eu: {\"erro\":\"Sessão expirada. Entre de novo.\"}",
-      "updatedAt": 1792259264406
+      "updatedAt": 1792259385041
     }
   ],
   "goroutines": 18,
-  "ramAllocMB": 0.9368515014648438,
+  "ramAllocMB": 0.9314346313476562,
   "ramSysMB": 13.099861145019531,
-  "uptime": "14m57s"
+  "uptime": "16m56s"
 }
