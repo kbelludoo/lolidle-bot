@@ -172,16 +172,50 @@ Todo bot criado deve expor um endpoint HTTP leve em sua porta designada (`GET /a
 }
 ```
 
-### 11. Arquitetura Split-Resolver (Bypass de Captcha Turnstile/Cloudflare sem Gastar RAM na VPS e sem PC Ligado)
-Quando o jogo de navegador exigir resolução periódica de desafios Cloudflare Turnstile:
-- **O Desafio do IP/Sessão (Erro 4401):** O servidor do jogo valida o Turnstile e amarra o ticket de WebSocket ao IP e ao Cookie de Sessão (`sid`/`did`) da requisição emissora. Se um runner externo (ex: GitHub Actions) ou o seu PC pessoal emitir o ticket de lá, o servidor recusará a conexão da VPS com `4401 credencialInvalida`.
-- **A Estratégia de Separação (Split Solver vs Issuer):**
-  1. **GitHub Actions Runner (O Solver Gratuito):** Roda Chrome real em ambiente descartável (2 vCPU, 7 GB RAM) com `xvfb-run`. Injeta o cookie de sessão da VPS (secret `BOT_SESSION`).
-  2. **Interceptação CDP e Roubo do Token:** O script injetado no navegador hooka `window.fetch`. Quando a página do jogo tenta disparar `/auth/world-ticket` com o token do Turnstile resolvido, o hook **rouba o `turnstileToken` do corpo do request** e retorna uma `Promise` pendente (`new Promise(() => {})`), impedindo que o navegador gaste ou invalide o token. O WebSocket do navegador é substituído por um `DummyWebSocket` para não queimar conexões.
-  3. **Devolução via Túnel Seguro:** O runner envia o token Turnstile para a VPS via tunnel: `POST <tunnel_url>/api/ticket {"turnstileToken": token}`.
-  4. **Emissão Local pela VPS (Ticket 100% Válido):** O bot recebe o token pelo canal `b.turnstileChan` e a **própria VPS** executa o POST do `/auth/world-ticket`. Como o IP de origem e o cookie coincidem exatamente com a VPS, o ticket gerado passa liso na conexão WebSocket do jogo sem qualquer erro 4401.
-  5. **Gatilho Autônomo 24/7:** Ao receber `captcha_required` ou ticket expirado, o bot na VPS dispara o workflow automaticamente via CLI nativa (`gh workflow run ticket-relay.yml -R <repo> -f mode=push -f push_url=<tunnel>`) usando os helpers do `pkg/auth/relay.go`.
-  6. **Zero Carga na VPS e Zero PC Ligado:** A VPS de 1 vCPU / 1 GB RAM nunca precisa rodar navegadores pesados e o PC do usuário pode permanecer desligado permanentemente (aposentando ferramentas como `ticketd.exe`).
+### 12. Padrão de Validação Estrita de Schema, Anti-Tampering e WebSocket Híbrido (Lições do LoL Idle)
+
+Jogos com sistemas de save avançados em nuvem e multiplayer híbrido (como o LoL Idle / Runeterra) possuem defesas sofisticadas contra bots que quebram implementações ingênuas. Sempre que enfrentar um jogo com essas características, siga estes padrões obrigatórios:
+
+#### A. O Padrão Dynamic Overlay (`RawEstado map[string]any`) — Prevenção de "Save Malformado"
+* **O Problema:** A maioria dos bots em Go define uma struct tipada com 10 a 15 campos (`Level`, `Gold`, `Hp`, etc.). No entanto, servidores modernos validam **dezenas de chaves obrigatórias** no schema do JSON (ex: `conquistas`, `skins`, `skin`, `gemas`, `rotina`, `auto`, `autoHab`, `espolios`, `montaria`, `itens`, `mochila`, etc.). Quando a struct Go serializa o JSON no `PUT /api/save`, ela omite os campos desconhecidos. O servidor detecta o schema incompleto e rejeita o progresso com erro silencioso de `"save malformado"`.
+* **A Solução:** Nunca envie um JSON derivado apenas de uma struct estática.
+  1. No `GET /api/eu`, armazene o JSON bruto do estado em um `RawEstado map[string]any`.
+  2. Mantenha os campos de combate tipados para lógica de jogo interna (`Level`, `Exp`, `Gold`).
+  3. No momento de salvar (`salvarSave`), faça o **overlay** apenas das propriedades alteradas sobre o `RawEstado` original e envie `{ "estado": raw }`. Isso garante preservação de 100% dos campos que o servidor espera, independentemente de atualizações futuras.
+
+#### B. Isolamento de Instâncias e Headers de Origem (`X-Instancia` e `outraAba`)
+* **O Problema:** Para impedir que duas abas ou dois aparelhos salvem ao mesmo tempo gerando conflitos de concorrência, o servidor gera ou exige um identificador único de instância da página (`X-Instancia`).
+* **A Regra:** Gere uma string aleatória única na inicialização da conta (`X-Instancia: Math.random() + Date.now()`) e envie esse mesmo header em **todas** as requisições (`GET /api/eu`, `PUT /api/save`, etc.). Mudar de instância entre um GET e um PUT fará o servidor responder com `outraAba: true`, desativando o salvamento.
+* **Headers de Fingerprint:** Requisições de save via HTTP REST em jogos web frequentemente exigem cabeçalhos de navegador autênticos: `Origin: https://dominio.com` e `Referer: https://dominio.com/jogar`. Omiti-los pode disparar recusas silenciosas ou bloqueios WAF.
+
+#### C. Controle Otimista de Concorrência (`rev` Tracking)
+* O servidor mantém uma chave de revisão atômica no banco de dados (`rev`).
+* Toda resposta de `GET /api/eu` ou de `PUT /api/save` bem-sucedido retorna a nova `rev`.
+* **Regra:** O bot deve atualizar o campo `rev` imediatamente na memória local. Enviar um save com `rev` antiga resulta em `409 Conflict: Progresso desatualizado`.
+
+#### D. Invariantes Matemáticas e Orçamento de Atributos (Anti-Tampering)
+Servidores com validação heurística checam a coerência lógica e matemática do save:
+1. **Orçamento Rígido de Atributos:** Os pontos de atributo distribuídos somados aos pontos livres devem respeitar rigorosamente a fórmula matemática:  
+   $$\sum \text{atrib} + \text{pontosAtrib} \le \text{PONTOS\_POR\_NIVEL} \times (\text{nível} - 1)$$  
+   Se você injetar pontos ou se a simulação acumular além desse teto, o servidor rejeita com `"pontos de atributo demais"`.
+2. **Requisitos de Nível em Habilidades:** As habilidades devem respeitar os caps da classe (ex: Ultimate *R* desbloqueada apenas nos níveis 6, 11, 16... e habilidades comuns limitadas a `(nível + 1) / 2`).
+3. **Monotonicidade Estrita (Contadores que Não Voltam para Trás):**
+   * $\Delta(\text{totais.abates}) \ge 0$
+   * $\Delta(\text{totais.ouro}) \ge 0$
+   * $\Delta(\text{tempoJogo}) \ge 0$
+   * $\Delta(\text{relogio}) \ge 0$  
+   Se qualquer um desses valores for inferior ao registrado no banco, o servidor aborta com `"contadores voltaram para trás"` ou `"relógio do jogo inválido"`.
+4. **Coerência Econômica:** O ouro possuído nunca pode exceder o total histórico ganho somado ao nível (`totais.ouro - gasto <= ouro`), impedindo injeções mágicas de moedas (`"ouro demais"`).
+
+#### E. Arquitetura Híbrida: REST para Saves + WebSocket para Presença e Party
+Em jogos onde o mundo aberto possui modo cooperativo (party/grupo):
+* **Separação de Camadas:** A persistência definitiva ocorre via REST (`PUT /api/save`), enquanto a presença em tempo real, visualização de aliados e buffs de grupo ocorrem no WebSocket.
+* **Pré-requisito de Localização:** Para que convites de grupo (`{t: "grupo", acao: "convidar"}`) sejam aceitos, ambos os personagens devem estar fisicamente no mapa multiplayer correspondente (`local: "arena"` / Runeterra) e transmitindo frames de posição (`{t: "pos"}`) a ~10 Hz. Convites enviados para personagens no modo offline/Rift retornam `"{nome} não pode entrar no grupo agora"`.
+* **Distribuição de EXP em Grupo:** Quando em grupo, cada monstro abatido deve transmitir o frame de abate (`{t: "abateGrupo", id: monstro.id}`) via WebSocket para que o servidor oficial calcule e credite a parcela de EXP compartilhada aos membros próximos (+45% de bônus).
+
+#### F. Regra de Concorrência de Conta Única
+* O servidor derruba sessões com `401 Unauthorized` se houver múltiplas conexões simultâneas na mesma conta.
+* Para formar uma party de 4 jogadores, utilize **4 contas distintas cadastradas**, preferencialmente isoladas por IPs privados/secundários da VPS (`bindIP: 10.0.0.X`) para máxima discrição.
 
 ---
 

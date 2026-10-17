@@ -70,6 +70,7 @@ func fetchAll() map[string]map[string]any {
 		"kickminer":     "http://127.0.0.1:3009/api/status",
 		"baiak":         "http://127.0.0.1:8090/api/fleet",
 		"twitchminer":   "http://127.0.0.1:3010/api/status",
+		"lolidle":       "http://127.0.0.1:3011/api/status",
 	}
 	results := make(map[string]map[string]any, len(urls))
 	var mu sync.Mutex

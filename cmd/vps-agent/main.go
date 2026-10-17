@@ -78,6 +78,7 @@ var allBots = []BotProbe{
 	{ID: "kickminer", Name: "🟢 Kick Miner Go", Port: 3009, URL: "http://127.0.0.1:3009/api/status", RestartCmd: "sudo systemctl restart kick-miner.service", Type: "systemd"},
 	{ID: "twitchminer", Name: "🟣 Twitch Miner Go", Port: 3010, URL: "http://127.0.0.1:3010/api/status", RestartCmd: "sudo systemctl restart twitch-miner.service", Type: "systemd"},
 	{ID: "baiak", Name: "🏰 Baiak Idle Go", Port: 8090, URL: "http://127.0.0.1:8090/api/fleet", RestartCmd: "sudo systemctl restart baiak-fleet.service", Type: "systemd"},
+	{ID: "lolidle", Name: "⚔️ LoL Idle Multi-Bot", Port: 3011, URL: "http://127.0.0.1:3011/api/status", RestartCmd: "sudo systemctl restart lolidle.service", Type: "systemd"},
 }
 
 // -------------------------------------------------------------
@@ -352,6 +353,7 @@ func syncIndividual() {
 		{repo: "pokeidle-go", port: 3006, label: "Treinador"},
 		{repo: "pokeidleworld-bot", port: 3007, label: "Treinador"},
 		{repo: "twitch-miner-go", port: 3010, label: "Minerador"},
+		{repo: "lolidle-bot", port: 3011, label: "Campeão"},
 	}
 
 	for _, tgt := range targets {
@@ -468,6 +470,7 @@ func syncHub() {
 		"kickminer":     {"Kick Channel Points Miner", "Kick.com", "Go Native (Zero-Video WS)", 3009, "https://kbelludoo.github.io/kick-miner-go/", nil},
 		"twitchminer":   {"Twitch Channel Points Miner", "Twitch.tv", "Go Native (Zero-Video WS)", 3010, "https://kbelludoo.github.io/twitch-miner-go/", nil},
 		"baiak":         {"Baiak Idle Multi-Account", "Baiak Idle", "Go Native Engine", 8090, "https://kbelludoo.github.io/baiak-idle-bot/", nil},
+		"lolidle":       {"LoL Idle Multi-Bot", "LoL Idle", "Go Native Engine (Runeterra 4x Party)", 3011, "https://kbelludoo.github.io/lolidle-bot/", nil},
 	}
 
 	var wg sync.WaitGroup
