@@ -1054,7 +1054,13 @@ func (b *Bot) salvarSave(force bool) {
 			b.logMu.Lock()
 			b.recusados++
 			b.logMu.Unlock()
-			b.addLog("⛔ SAVE RECUSADO pelo servidor: " + fmt.Sprint(resp))
+			b.addLog("⛔ SAVE RECUSADO pelo servidor: " + fmt.Sprint(resp) + " — sincronizando com /api/eu...")
+			var sess PlayerSession
+			if errEu := b.httpCli.GetJSON("/api/eu", &sess); errEu == nil {
+				b.mu.Lock()
+				b.session = sess
+				b.mu.Unlock()
+			}
 			return
 		}
 
