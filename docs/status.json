@@ -1,7 +1,7 @@
 {
   "accounts": null,
-  "goroutines": 7,
-  "ramAllocMB": 0.28177642822265625,
+  "goroutines": 6,
+  "ramAllocMB": 0.26739501953125,
   "ramSysMB": 12.416282653808594,
-  "uptime": "40h55m12s"
+  "uptime": "40h57m12s"
 }
